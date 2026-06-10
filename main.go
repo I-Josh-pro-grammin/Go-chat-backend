@@ -27,5 +27,5 @@ func main() {
     app.Use(cors.New());
     routes.Setup(app);
 
-    log.Fatal(app.Listen(os.Getenv(`:"PORT"`)))
+    log.Fatal(app.Listen(os.Getenv("PORT")))
 }
