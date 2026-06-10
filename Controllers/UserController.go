@@ -33,6 +33,8 @@ func RegisterUser(c fiber.Ctx) error {
    return c.JSON(user)
 }
 
+
+
 func GetUserById(c fiber.Ctx) error {
     userId := c.Params("userId");
 	var user models.User;
@@ -41,4 +43,31 @@ func GetUserById(c fiber.Ctx) error {
 	Find(&user);
 
 	return c.JSON(user);
+}
+
+
+
+func Login(c fiber.Ctx) {
+   type LoginRequest struct{
+	Username string `json:"username"`
+   }
+
+   var req LoginRequest;
+
+   if err := c.Bind().Body(&req); err != nil {
+	  c.Status(400).JSON(fiber.Map{
+		"error": "Invalid input",
+	  })
+   }
+   
+   var user models.User;
+
+   if err := config.DB.Where("username = ?", req.Username).Find(&user); err != nil {
+	  c.Status(400).JSON(fiber.Map{
+		"message": "User doesn't exist!",
+	})
+   }
+
+   c.Status(200).JSON(user);
+   
 }

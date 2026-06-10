@@ -10,8 +10,11 @@ func Setup(app *fiber.App) {
 
 	api.Post("/users/register", Controllers.RegisterUser)
 	api.Get("/users/:userId", Controllers.GetUserById)
+	api.Post("/users/login", Controllers.Login)
     
 	api.Post("/messages", Controllers.CreateMessage)
 
 	api.Get("/rooms/:roomId/messages", Controllers.GetRoomMessages)
+
+	// api.Get("/rooms/:messageId", Controllers.GetRoomByMessageId)
 }
