@@ -7,6 +7,8 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 	"time"
+	"errors"
+	"gorm.io/gorm"
 )
 
 func RegisterUser(c fiber.Ctx) error {
@@ -47,27 +49,54 @@ func GetUserById(c fiber.Ctx) error {
 
 
 
-func Login(c fiber.Ctx) {
+func Login(c fiber.Ctx) error { // 1. Change signature to return error
    type LoginRequest struct{
-	Username string `json:"username"`
+	  Username string `json:"username"`
    }
 
    var req LoginRequest;
 
+   if req.Username == "" {
+	   return c.Status(400).JSON(fiber.Map{
+		"error": "Invalid input",
+	   })
+   }
+
+   // 2. Use '!= nil' and 'return' to halt execution on bad input
    if err := c.Bind().Body(&req); err != nil {
-	  c.Status(400).JSON(fiber.Map{
+	  return c.Status(400).JSON(fiber.Map{
 		"error": "Invalid input",
 	  })
    }
    
    var user models.User;
 
-   if err := config.DB.Where("username = ?", req.Username).Find(&user); err != nil {
-	  c.Status(400).JSON(fiber.Map{
-		"message": "User doesn't exist!",
-	})
+   // 3. Use 'First' and check for ErrRecordNotFound
+   // (Make sure to import "errors" and "gorm.io/gorm" in your UserController imports)
+   if err := config.DB.Where("username = ?", req.Username).First(&user).Error; err != nil {
+      if errors.Is(err, gorm.ErrRecordNotFound) {
+          return c.Status(404).JSON(fiber.Map{
+              "message": "User doesn't exist!",
+          })
+      }
+      return c.Status(500).JSON(fiber.Map{
+          "error": "Database error",
+      })
    }
 
-   c.Status(200).JSON(user);
-   
+   // 4. Return the user successfully
+   return c.Status(200).JSON(user)
+}
+
+func findRoomUsers(c fiber.Ctx) error {
+   roomId := c.Params("roomId")
+
+   var users []models.User;
+
+   config.DB.
+	Joins("Message").
+	Where("Message.room_id = ?", roomId).
+	Find(&users);
+
+	return c.JSON(users)
 }
