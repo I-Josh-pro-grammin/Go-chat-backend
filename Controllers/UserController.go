@@ -88,15 +88,24 @@ func Login(c fiber.Ctx) error { // 1. Change signature to return error
    return c.Status(200).JSON(user)
 }
 
-func findRoomUsers(c fiber.Ctx) error {
+func GetRoomUsers(c fiber.Ctx) error {
    roomId := c.Params("roomId")
+
+   if _, err := uuid.Parse(roomId); err != nil {
+       return c.Status(400).JSON(fiber.Map{
+           "error": "Invalid room ID format",
+       })
+   }
 
    var users []models.User;
 
-   config.DB.
-	Joins("Message").
-	Where("Message.room_id = ?", roomId).
-	Find(&users);
+   if err := config.DB.
+	Where("id::text IN (SELECT user_id::text FROM messages WHERE room_id::text = ?)", roomId).
+	Find(&users).Error; err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": "Internal Server Error",
+		})
+	}
 
-	return c.JSON(users)
+	return c.JSON(users);
 }

@@ -1,0 +1,9 @@
+./client.go
+./crypto.go
+./doc.go
+./encoder.go
+./request.go
+./request_url.go
+./response_parsing.go
+./util.go
+./webhook.go
