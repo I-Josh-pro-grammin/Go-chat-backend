@@ -56,12 +56,6 @@ func Login(c fiber.Ctx) error { // 1. Change signature to return error
 
    var req LoginRequest;
 
-   if req.Username == "" {
-	   return c.Status(400).JSON(fiber.Map{
-		"error": "Invalid input",
-	   })
-   }
-
    // 2. Use '!= nil' and 'return' to halt execution on bad input
    if err := c.Bind().Body(&req); err != nil {
 	  return c.Status(400).JSON(fiber.Map{
