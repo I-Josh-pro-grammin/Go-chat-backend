@@ -32,6 +32,19 @@ func RegisterUser(c fiber.Ctx) error {
 	})
    }
 
+   room := models.Room{
+	ID: uuid.New(),
+	Name: "#" + req.Username,
+	Username: req.Username,
+	Created_At: time.Now(),
+   }
+
+   if err := config.DB.Create(&room).Error; err != nil {
+	return c.Status(500).JSON(fiber.Map{
+		"error": "Room creation failed",
+	})
+   }
+
    return c.JSON(user)
 }
 
