@@ -16,6 +16,7 @@ func Setup(app *fiber.App) {
 
 	api.Get("/rooms/:roomId/messages", Controllers.GetRoomMessages)
 	api.Get("/rooms/:roomId/users", Controllers.GetRoomUsers)
+	api.Get("/rooms/:username", Controllers.GetRoomByUsername);
 
 	// api.Get("/rooms/:messageId", Controllers.GetRoomByMessageId)
 }
